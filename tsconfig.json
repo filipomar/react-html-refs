@@ -31,11 +31,13 @@
             "./node_modules/@types"
         ],
         "types": [
-            "node"
+            "node",
+            "jest"
         ]
     },
     "include": [
-        "test"
+        "test",
+        "src"
     ],
     "exclude": [
         "node_modules",

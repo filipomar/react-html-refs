@@ -1,1 +1,6 @@
-console.log(123);
+import React from 'react';
+import { Scroll } from '../../src/Provider';
+
+console.log(<Scroll />);
+
+

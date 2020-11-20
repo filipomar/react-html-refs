@@ -8,7 +8,10 @@
     "url": "git+https://github.com/filipomar/react-scrollhooks.git"
   },
   "scripts": {
-    "start": "webpack-dev-server --config ./test/local/webpack.config.ts"
+    "lint": "eslint --config .eslintrc.js \"src/**/*.{ts,tsx}\"",
+    "prettier": "prettier --parser typescript --config .prettierrc.js --write \"src/**/*.{ts,tsx}\"",
+    "start": "webpack-dev-server --config ./test/local/webpack.config.ts",
+    "test": "jest --no-cache --maxWorkers=2"
   },
   "keywords": [
     "react",
@@ -23,15 +26,13 @@
   "devDependencies": {
     "@babel/preset-env": "^7.12.1",
     "@testing-library/react": "^10.4.9",
-    "@types/dotenv-webpack": "^1.8.0",
+    "@types/jest": "^26.0.15",
     "@types/react": "^16.9.55",
     "@types/react-dom": "^16.9.9",
     "@types/webpack-dev-server": "^3.11.1",
     "@typescript-eslint/eslint-plugin": "^3.10.1",
     "@typescript-eslint/parser": "^3.10.1",
     "babel-loader": "^8.1.0",
-    "dotenv": "^8.2.0",
-    "dotenv-webpack": "^2.0.0",
     "eslint": "^7.12.1",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
@@ -51,5 +52,9 @@
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0"
+  },
+  "dependencies": {
+    "install": "^0.13.0",
+    "jest": "^25.5.4"
   }
 }
