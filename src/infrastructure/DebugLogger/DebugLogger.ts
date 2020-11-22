@@ -13,11 +13,11 @@ export class DebugLogger implements Logger {
         console.debug(`Registered '${id}'`);
     }
 
-    onNoResolvedScrollers(): void {
-        console.warn(`Could not scroll as no scrollers were found`);
+    onDeregister(id: string): void {
+        console.debug(`De-registered '${id}'`);
     }
 
-    onResolvedScrollersNotSuccessful(): void {
+    onScrollerNotSuccessful(): void {
         console.warn(`Could not scroll as no scrollers were successful`);
     }
 }

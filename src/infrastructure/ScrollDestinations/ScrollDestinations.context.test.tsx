@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 
-import { ScrollDestinations, ScrollDestination } from '..';
+import { ScrollDestinations, ScrollDestination, chain, silence, wrapUnknown } from '..';
 
 import { MockedLogger } from '../../../test/utilts/MockedLogger';
 import { TestButton } from '../../../test/utilts/Components';
@@ -25,10 +25,9 @@ describe('ScrollDestinations', () => {
          */
         const logger = new MockedLogger();
         const scrollToMock = jest.fn();
-        Element.prototype.scrollTo = scrollToMock;
 
         const rendered = render(
-            <ScrollDestinations scrollers="scrollTo" logger={logger}>
+            <ScrollDestinations scroller={chain(silence(wrapUnknown(scrollToMock)))} logger={logger}>
                 <ScrollDestination<Id> scrollId="A" style={{ background: 'red' }} />
                 <TestButton<Id> scrollId="A" />
             </ScrollDestinations>,
@@ -50,8 +49,8 @@ describe('ScrollDestinations', () => {
         expect(logger.onDestinationNotFound).toBeCalledTimes(0);
         expect(logger.onScroll).toBeCalledWith('A');
         expect(logger.onRegister).toBeCalledWith('A');
-        expect(logger.onNoResolvedScrollers).toBeCalledTimes(0);
-        expect(logger.onResolvedScrollersNotSuccessful).toBeCalledTimes(0);
+        expect(logger.onDeregister).toBeCalledTimes(0);
+        expect(logger.onScrollerNotSuccessful).toBeCalledTimes(0);
         expect(scrollToMock).toBeCalledTimes(1);
     });
 
@@ -60,10 +59,9 @@ describe('ScrollDestinations', () => {
          * Mock
          */
         const scrollToMock = jest.fn();
-        Element.prototype.scrollTo = scrollToMock;
 
         const rendered = render(
-            <ScrollDestinations scrollers="scrollTo">
+            <ScrollDestinations scroller={chain(silence(wrapUnknown(scrollToMock)))}>
                 <ScrollDestination<Id> scrollId="A" style={{ background: 'red' }} />
                 <TestButton<Id> scrollId="A" />
             </ScrollDestinations>,
@@ -85,15 +83,14 @@ describe('ScrollDestinations', () => {
         expect(scrollToMock).toBeCalledTimes(1);
     });
 
-    it('Does not scrolls to point when clicked without logger but throws no error', () => {
+    it("Won't scroll if element hasn't been registered, but even without a logger will not throw errors", () => {
         /**
          * Mock
          */
         const scrollToMock = jest.fn();
-        Element.prototype.scrollTo = scrollToMock;
 
         const rendered = render(
-            <ScrollDestinations scrollers="scrollTo">
+            <ScrollDestinations scroller={chain(silence(wrapUnknown(scrollToMock)))}>
                 <TestButton<Id> scrollId="A" />
             </ScrollDestinations>,
         );
@@ -119,7 +116,7 @@ describe('ScrollDestinations', () => {
         const rendered = render(
             <ScrollDestinations logger={logger}>
                 <ScrollDestination<Id> scrollId="A" style={{ background: 'red' }} />
-                <TestButton<Id> scrollId="A" scrollers={customScroller} />
+                <TestButton<Id> scrollId="A" scroller={customScroller} />
             </ScrollDestinations>,
         );
 
@@ -139,8 +136,8 @@ describe('ScrollDestinations', () => {
         expect(logger.onDestinationNotFound).toBeCalledTimes(0);
         expect(logger.onScroll).toBeCalledTimes(0);
         expect(logger.onRegister).toBeCalledTimes(1);
-        expect(logger.onNoResolvedScrollers).toBeCalledTimes(0);
-        expect(logger.onResolvedScrollersNotSuccessful).toBeCalledTimes(1);
+        expect(logger.onDeregister).toBeCalledTimes(0);
+        expect(logger.onScrollerNotSuccessful).toBeCalledTimes(1);
         expect(customScroller).toBeCalledWith(rendered.container.querySelector('div[style]'));
     });
 
@@ -166,8 +163,8 @@ describe('ScrollDestinations', () => {
         expect(logger.onDestinationNotFound).toBeCalledTimes(1);
         expect(logger.onScroll).toBeCalledTimes(0);
         expect(logger.onRegister).toBeCalledTimes(0);
-        expect(logger.onNoResolvedScrollers).toBeCalledTimes(0);
-        expect(logger.onResolvedScrollersNotSuccessful).toBeCalledTimes(0);
+        expect(logger.onDeregister).toBeCalledTimes(0);
+        expect(logger.onScrollerNotSuccessful).toBeCalledTimes(0);
     });
 
     it('Logs when no scrollers are found', () => {
@@ -199,47 +196,11 @@ describe('ScrollDestinations', () => {
         expect(logger.onDestinationNotFound).toBeCalledTimes(0);
         expect(logger.onScroll).toBeCalledTimes(0);
         expect(logger.onRegister).toBeCalledTimes(1);
-        expect(logger.onNoResolvedScrollers).toBeCalledTimes(1);
-        expect(logger.onResolvedScrollersNotSuccessful).toBeCalledTimes(0);
+        expect(logger.onDeregister).toBeCalledTimes(0);
+        expect(logger.onScrollerNotSuccessful).toBeCalledTimes(1);
     });
 
-    it('Works with more than one scroller', () => {
-        /**
-         * Mock
-         */
-        const logger = new MockedLogger();
-        const scrollToMock = jest.fn();
-        Element.prototype.scrollBy = scrollToMock;
-
-        const rendered = render(
-            <ScrollDestinations scrollers={['scrollIntoView', 'scrollBy', 'scrollTo']} logger={logger}>
-                <ScrollDestination<Id> scrollId="A" style={{ background: 'red' }} />
-                <TestButton<Id> scrollId="A" />
-            </ScrollDestinations>,
-        );
-
-        /**
-         * Make sure destination rendered
-         */
-        expect(rendered.container.querySelector('div[style]')).not.toBeNull();
-
-        const button = rendered.container.querySelector('button');
-
-        if (!button) {
-            fail('Button not rendered');
-        }
-
-        fireEvent.click(button);
-
-        expect(logger.onDestinationNotFound).toBeCalledTimes(0);
-        expect(logger.onScroll).toBeCalledWith('A');
-        expect(logger.onRegister).toBeCalledWith('A');
-        expect(logger.onNoResolvedScrollers).toBeCalledTimes(0);
-        expect(logger.onResolvedScrollersNotSuccessful).toBeCalledTimes(0);
-        expect(scrollToMock).toBeCalledTimes(1);
-    });
-
-    it('Scrolls to last item if registration is dupilcate', () => {
+    it('Scrolls to last item if registration is duplicate', () => {
         /**
          * Mock
          */
@@ -247,7 +208,7 @@ describe('ScrollDestinations', () => {
         const scrollerMock = jest.fn().mockReturnValue(true);
 
         const rendered = render(
-            <ScrollDestinations scrollers={scrollerMock} logger={logger}>
+            <ScrollDestinations scroller={scrollerMock} logger={logger}>
                 <ScrollDestination<Id> scrollId="A" id="RED" style={{ background: 'red' }} />
                 <ScrollDestination<Id> scrollId="A" id="BLUE" style={{ background: 'blue' }} />
                 <TestButton<Id> scrollId="A" />
@@ -270,8 +231,46 @@ describe('ScrollDestinations', () => {
         expect(logger.onDestinationNotFound).toBeCalledTimes(0);
         expect(logger.onScroll).toBeCalledWith('A');
         expect(logger.onRegister).toBeCalledWith('A');
-        expect(logger.onNoResolvedScrollers).toBeCalledTimes(0);
-        expect(logger.onResolvedScrollersNotSuccessful).toBeCalledTimes(0);
+        expect(logger.onDeregister).toBeCalledTimes(0);
+        expect(logger.onScrollerNotSuccessful).toBeCalledTimes(0);
+
         expect(scrollerMock).toBeCalledWith(rendered.container.querySelector('#BLUE'));
+    });
+
+    it('Handles sileced struggling scroller properly', () => {
+        /**
+         * Mock
+         */
+        const logger = new MockedLogger();
+        const scrollToMock = jest.fn().mockImplementation(() => {
+            throw new Error('Bruh');
+        });
+
+        const rendered = render(
+            <ScrollDestinations scroller={chain(silence(wrapUnknown(scrollToMock)))} logger={logger}>
+                <ScrollDestination<Id> scrollId="A" style={{ background: 'red' }} />
+                <TestButton<Id> scrollId="A" />
+            </ScrollDestinations>,
+        );
+
+        /**
+         * Make sure destination rendered
+         */
+        expect(rendered.container.querySelector('div[style]')).not.toBeNull();
+
+        const button = rendered.container.querySelector('button');
+
+        if (!button) {
+            fail('Button not rendered');
+        }
+
+        fireEvent.click(button);
+
+        expect(logger.onDestinationNotFound).toBeCalledTimes(0);
+        expect(logger.onScroll).toBeCalledTimes(0);
+        expect(logger.onRegister).toBeCalledWith('A');
+        expect(logger.onDeregister).toBeCalledTimes(0);
+        expect(logger.onScrollerNotSuccessful).toBeCalledTimes(1);
+        expect(scrollToMock).toBeCalledTimes(1);
     });
 });

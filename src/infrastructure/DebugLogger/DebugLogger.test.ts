@@ -35,20 +35,20 @@ describe('DebugLogger', () => {
         expect(console.debug).toBeCalledTimes(1);
     });
 
-    it('handles onNoResolvedScrollers as a wanring', () => {
+    it('handles onDeregister as debug', () => {
         const console = mockConsole();
         const logger = new DebugLogger();
-        logger.onNoResolvedScrollers();
+        logger.onDeregister('id');
 
         expect(console.error).toBeCalledTimes(0);
-        expect(console.warn).toBeCalledTimes(1);
-        expect(console.debug).toBeCalledTimes(0);
+        expect(console.warn).toBeCalledTimes(0);
+        expect(console.debug).toBeCalledTimes(1);
     });
 
     it('handles onResolvedScrollersNotSuccessful as a wanring', () => {
         const console = mockConsole();
         const logger = new DebugLogger();
-        logger.onResolvedScrollersNotSuccessful();
+        logger.onScrollerNotSuccessful();
 
         expect(console.error).toBeCalledTimes(0);
         expect(console.warn).toBeCalledTimes(1);

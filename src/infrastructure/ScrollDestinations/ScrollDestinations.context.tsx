@@ -1,11 +1,8 @@
 import React, { createContext, useContext, createRef, FC, RefObject, useMemo } from 'react';
 
-import { Optional } from '../../utils/Types';
-
 import { Logger } from '../../domain/Logger';
 import { Scroller } from '../../domain/Scroller';
-
-import scrollers, { buildScroller, ScrollerBuilderKey } from './ScrollerBuilders';
+import { Optional } from '../../utils/Types';
 
 type ScrollDestinationsState = {
     /**
@@ -16,30 +13,31 @@ type ScrollDestinationsState = {
     /**
      * Logger, if you want to know what is happening inside the scroller
      */
-    readonly logger?: Partial<Logger>;
+    readonly logger: Partial<Logger>;
 
     /**
-     * The strategies the `scroll` hook should use
+     * The scrolling strategy
      */
-    readonly scrollers: ScrollerBuilderKey | ScrollerBuilderKey[] | ((el: HTMLElement) => boolean);
+    readonly scroller?: Scroller;
 };
 
 const ScrollDestinationsContext = createContext<ScrollDestinationsState | null>(null);
 
-export type ScrollDestionationsProps = Optional<Pick<ScrollDestinationsState, 'logger' | 'scrollers'>, 'scrollers'>;
-export const ScrollDestinations: FC<ScrollDestionationsProps> = ({ logger, scrollers = [], children }): JSX.Element => {
+export type ScrollDestionationsProps = Optional<Pick<ScrollDestinationsState, 'logger' | 'scroller'>>;
+export const ScrollDestinations: FC<ScrollDestionationsProps> = ({ logger = {}, scroller, children }): JSX.Element => {
     /**
      * This hook can be treated as a map, as updates on its refs should not cause a re-render
      */
     const destinations = useMemo(() => new Map(), []);
-    return <ScrollDestinationsContext.Provider value={{ destinations, scrollers, logger }}>{children}</ScrollDestinationsContext.Provider>;
+    return <ScrollDestinationsContext.Provider value={{ destinations, scroller, logger }}>{children}</ScrollDestinationsContext.Provider>;
 };
 
-type DestinationHook<E> = {
+interface DestinationHook<E> {
     /**
      * Execute when you want to scroll to the referenced destination
+     * @param the scroller to override the general scroller to be used
      */
-    scroll: (args?: ScrollDestinationsState['scrollers']) => void;
+    scroll: (scroller?: Scroller) => boolean;
 
     /**
      * Register the destination point
@@ -50,19 +48,7 @@ type DestinationHook<E> = {
      * De-register the destination point
      */
     deregister: () => void;
-};
-
-const resolveScrollers = (el: HTMLElement, args: ScrollDestinationsState['scrollers']): Scroller[] => {
-    if (typeof args === 'string') {
-        return [scrollers[args](el)];
-    }
-
-    if (Array.isArray(args)) {
-        return args.map((v) => scrollers[v](el));
-    }
-
-    return [buildScroller(el, args)];
-};
+}
 
 export const useScrollDestination = <I extends string, E extends HTMLElement = HTMLElement>(id: I): DestinationHook<E> => {
     const context = useContext(ScrollDestinationsContext);
@@ -70,53 +56,41 @@ export const useScrollDestination = <I extends string, E extends HTMLElement = H
         throw new Error('useScrollDestination must be used within a ScrollDestinations Context');
     }
 
-    const { logger, destinations, scrollers } = context;
+    const { logger, destinations, scroller } = context;
 
     return {
-        scroll: (args) => {
+        scroll: (argsScroller) => {
             const current = (destinations.get(id) as RefObject<E>)?.current;
             if (!current) {
                 /**
                  * Ref is not present, scroll is impossible, attempt to log
                  */
-                logger?.onDestinationNotFound?.(id);
-                return;
+                logger.onDestinationNotFound?.(id);
+                return false;
             }
 
             /**
              * Resolve how we should scroll to the element
              */
-            const resolvedScrollers = resolveScrollers(current, args || scrollers);
-            if (resolvedScrollers.length === 0) {
-                logger?.onNoResolvedScrollers?.();
-                return;
-            }
-
-            const successful = resolvedScrollers.some((s) => s.scroll());
+            const successful = (argsScroller || scroller)?.(current);
 
             /**
              * Stop on first scroller that is succesful
              */
             if (successful) {
-                /**
-                 * Log success
-                 */
-                logger?.onScroll?.(id);
+                logger.onScroll?.(id);
             } else {
-                /**
-                 * Log failure
-                 */
-                logger?.onResolvedScrollersNotSuccessful?.();
+                logger.onScrollerNotSuccessful?.();
             }
 
-            return successful;
+            return Boolean(successful);
         },
         register: () => {
             if (!destinations.has(id)) {
                 /**
                  * Log that it is being created
                  */
-                logger?.onRegister?.(id);
+                logger.onRegister?.(id);
             }
 
             /**
@@ -127,6 +101,7 @@ export const useScrollDestination = <I extends string, E extends HTMLElement = H
             return ref;
         },
         deregister: () => {
+            logger.onDeregister?.(id);
             destinations.delete(id);
         },
     };

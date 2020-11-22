@@ -10,17 +10,13 @@ export interface Logger {
     onScroll(id: string): void;
 
     /**
-     * Called whenever a destination is registered
+     * Called whenever a destination is registered/deregistered
      */
     onRegister(id: string): void;
-
-    /**
-     * When the destinaton hook can NOT find scrollers to use
-     */
-    onNoResolvedScrollers(): void;
+    onDeregister(id: string): void;
 
     /**
      * When no scrollers that run are succesful
      */
-    onResolvedScrollersNotSuccessful(): void;
+    onScrollerNotSuccessful(): void;
 }

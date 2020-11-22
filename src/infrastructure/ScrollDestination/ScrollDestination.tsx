@@ -1,6 +1,6 @@
 import { PropsWithChildren, createElement, useEffect } from 'react';
 
-import { useScrollDestination } from './ScrollDestinations.context';
+import { useScrollDestination } from '../ScrollDestinations/ScrollDestinations.context';
 
 type ScrollDestinationProps<T, E extends keyof JSX.IntrinsicElements> = {
     /**
