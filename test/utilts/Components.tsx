@@ -1,11 +1,12 @@
 import React from 'react';
 
-import { useDestination, DestionationsProps } from '../../src/infrastructure';
+import { Handler, useDestination } from '../../src/infrastructure';
 
-type TestButtonProps<I> = { destinationId: I } & Omit<React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>, 'onClick'> &
-    Pick<DestionationsProps, 'handler'>;
+type ButtonProps = Omit<React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>, 'onClick'>;
 
-export const TestButton = <I extends string>({ destinationId, handler, ...props }: TestButtonProps<I>): JSX.Element => {
-    const { handle } = useDestination<I>(destinationId);
-    return <button {...props} onClick={() => handle(handler)} />;
+type TestButtonProps<I, H extends string> = { destinationId: I; handler?: Handler; handlerCategory?: H } & ButtonProps;
+
+export const TestButton = <I extends string, H extends string = string>({ destinationId, handler, handlerCategory, ...props }: TestButtonProps<I, H>): JSX.Element => {
+    const { handle } = useDestination<I, H>(destinationId);
+    return <button {...props} onClick={() => handle(handlerCategory ? handlerCategory : handler)} />;
 };

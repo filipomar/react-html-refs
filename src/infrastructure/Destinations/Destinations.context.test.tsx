@@ -27,7 +27,7 @@ describe('Destinations', () => {
         const scrollToMock = jest.fn();
 
         const rendered = render(
-            <Destinations handler={chain(silence(wrapUnknown(scrollToMock)))} logger={logger}>
+            <Destinations defaultHandler={chain(silence(wrapUnknown(scrollToMock)))} logger={logger}>
                 <Destination<Id> destinationId="A" style={{ background: 'red' }} />
                 <TestButton<Id> destinationId="A" />
             </Destinations>,
@@ -61,7 +61,7 @@ describe('Destinations', () => {
         const scrollToMock = jest.fn();
 
         const rendered = render(
-            <Destinations handler={chain(silence(wrapUnknown(scrollToMock)))}>
+            <Destinations defaultHandler={chain(silence(wrapUnknown(scrollToMock)))}>
                 <Destination<Id> destinationId="A" style={{ background: 'red' }} />
                 <TestButton<Id> destinationId="A" />
             </Destinations>,
@@ -90,7 +90,7 @@ describe('Destinations', () => {
         const scrollToMock = jest.fn();
 
         const rendered = render(
-            <Destinations handler={chain(silence(wrapUnknown(scrollToMock)))}>
+            <Destinations defaultHandler={chain(silence(wrapUnknown(scrollToMock)))}>
                 <TestButton<Id> destinationId="A" />
             </Destinations>,
         );
@@ -208,7 +208,7 @@ describe('Destinations', () => {
         const scrollerMock = jest.fn().mockReturnValue(true);
 
         const rendered = render(
-            <Destinations handler={scrollerMock} logger={logger}>
+            <Destinations defaultHandler={scrollerMock} logger={logger}>
                 <Destination<Id> destinationId="A" id="RED" style={{ background: 'red' }} />
                 <Destination<Id> destinationId="A" id="BLUE" style={{ background: 'blue' }} />
                 <TestButton<Id> destinationId="A" />
@@ -237,7 +237,7 @@ describe('Destinations', () => {
         expect(scrollerMock).toBeCalledWith(rendered.container.querySelector('#BLUE'));
     });
 
-    it('Handles sileced struggling scroller properly', () => {
+    it('Handles silenced struggling scroller properly', () => {
         /**
          * Mock
          */
@@ -247,7 +247,7 @@ describe('Destinations', () => {
         });
 
         const rendered = render(
-            <Destinations handler={chain(silence(wrapUnknown(scrollToMock)))} logger={logger}>
+            <Destinations defaultHandler={chain(silence(wrapUnknown(scrollToMock)))} logger={logger}>
                 <Destination<Id> destinationId="A" style={{ background: 'red' }} />
                 <TestButton<Id> destinationId="A" />
             </Destinations>,
@@ -272,5 +272,73 @@ describe('Destinations', () => {
         expect(logger.onDeregister).toBeCalledTimes(0);
         expect(logger.onHandlerNotSuccessful).toBeCalledTimes(1);
         expect(scrollToMock).toBeCalledTimes(1);
+    });
+
+    it('Will use custom handlers', () => {
+        /**
+         * Mock
+         */
+        const logger = new MockedLogger();
+        const scrollToMock = jest.fn();
+
+        type HandlerCategory = 'fakeScroll';
+
+        const rendered = render(
+            <Destinations<HandlerCategory> handlers={{ fakeScroll: chain(silence(wrapUnknown(scrollToMock))) }} logger={logger}>
+                <Destination<Id> destinationId="A" style={{ background: 'red' }} />
+                <TestButton<Id, HandlerCategory> destinationId="A" handlerCategory="fakeScroll" />
+            </Destinations>,
+        );
+
+        /**
+         * Make sure destination rendered
+         */
+        expect(rendered.container.querySelector('div[style]')).not.toBeNull();
+
+        const button = rendered.container.querySelector('button');
+
+        if (!button) {
+            fail('Button not rendered');
+        }
+
+        fireEvent.click(button);
+
+        expect(logger.onDestinationNotFound).toBeCalledTimes(0);
+        expect(logger.onHandled).toBeCalledWith('A');
+        expect(logger.onRegister).toBeCalledWith('A');
+        expect(logger.onDeregister).toBeCalledTimes(0);
+        expect(logger.onHandlerNotSuccessful).toBeCalledTimes(0);
+        expect(scrollToMock).toBeCalledTimes(1);
+    });
+
+    it('Will use try custom handlers and ignore default handler if category is provided', () => {
+        /**
+         * Mock
+         */
+        const scrollToMock = jest.fn();
+
+        type HandlerCategory = 'fakeScroll';
+
+        const rendered = render(
+            <Destinations<HandlerCategory> handlers={{ fakeScroll: chain(silence(wrapUnknown(scrollToMock))) }}>
+                <Destination<Id> destinationId="A" style={{ background: 'red' }} />
+                <TestButton<Id> destinationId="A" handlerCategory="fakeScroll2EletricBoogaloo" />
+            </Destinations>,
+        );
+
+        /**
+         * Make sure destination rendered
+         */
+        expect(rendered.container.querySelector('div[style]')).not.toBeNull();
+
+        const button = rendered.container.querySelector('button');
+
+        if (!button) {
+            fail('Button not rendered');
+        }
+
+        fireEvent.click(button);
+
+        expect(scrollToMock).toBeCalledTimes(0);
     });
 });

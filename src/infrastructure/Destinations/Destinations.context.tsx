@@ -1,10 +1,10 @@
-import React, { createContext, useContext, createRef, FC, RefObject, useMemo } from 'react';
+import React, { createContext, useContext, createRef, RefObject, useMemo, PropsWithChildren } from 'react';
 
 import { Logger } from '../../domain/Logger';
 import { Handler } from '../../domain/Handler';
 import { Optional } from '../../utils/Types';
 
-type DestinationsState = {
+type DestinationsState<H extends string> = {
     /**
      * Internal control
      */
@@ -16,28 +16,29 @@ type DestinationsState = {
     readonly logger: Partial<Logger>;
 
     /**
-     * The handler strategy
+     * The handler strategy(ies)
      */
-    readonly handler?: Handler;
+    readonly defaultHandler?: Handler;
+    readonly handlers: Record<H, Handler>;
 };
 
-const DestinationsContext = createContext<DestinationsState | null>(null);
+const DestinationsContext = createContext<DestinationsState<string> | null>(null);
 
-export type DestionationsProps = Optional<Pick<DestinationsState, 'logger' | 'handler'>>;
-export const Destinations: FC<DestionationsProps> = ({ logger = {}, handler, children }): JSX.Element => {
+export type DestionationsProps<H extends string> = PropsWithChildren<Optional<Pick<DestinationsState<H>, 'logger' | 'defaultHandler' | 'handlers'>>>;
+export const Destinations = <H extends string>({ logger = {}, defaultHandler, handlers, children }: DestionationsProps<H>): JSX.Element => {
     /**
      * This hook can be treated as a map, as updates on its refs should not cause a re-render
      */
     const destinations = useMemo(() => new Map(), []);
-    return <DestinationsContext.Provider value={{ destinations, handler, logger }}>{children}</DestinationsContext.Provider>;
+    return <DestinationsContext.Provider value={{ destinations, defaultHandler, handlers: handlers || {}, logger }}>{children}</DestinationsContext.Provider>;
 };
 
-interface DestinationHook<E> {
+export interface DestinationHook<E, H extends string = string> {
     /**
      * Execute when you want to handle the referenced destination
      * @param the handler to override the general handler to be used
      */
-    handle: (handler?: Handler) => boolean;
+    handle: (handler?: Handler | H) => boolean;
 
     /**
      * Register the destination point
@@ -50,16 +51,31 @@ interface DestinationHook<E> {
     deregister: () => void;
 }
 
-export const useDestination = <I extends string, E extends HTMLElement = HTMLElement>(id: I): DestinationHook<E> => {
+const resolveHandler = <H extends string>({ defaultHandler, handlers }: DestinationsState<H>, argsHandlerOrCategory?: Handler | H): Handler | null => {
+    if (!argsHandlerOrCategory) {
+        /**
+         * Nothing is provided, fallback
+         */
+        return defaultHandler || null;
+    }
+
+    if (typeof argsHandlerOrCategory === 'string') {
+        return handlers[argsHandlerOrCategory] || null;
+    }
+
+    return argsHandlerOrCategory;
+};
+
+export const useDestination = <I extends string, H extends string = string, E extends HTMLElement = HTMLElement>(id: I): DestinationHook<E, H> => {
     const context = useContext(DestinationsContext);
     if (!context) {
         throw new Error('useDestination must be used within a Destinations Context');
     }
 
-    const { logger, destinations, handler } = context;
+    const { logger, destinations } = context;
 
     return {
-        handle: (argsHandler) => {
+        handle: (argsHandlerOrCategory) => {
             const current = (destinations.get(id) as RefObject<E>)?.current;
             if (!current) {
                 /**
@@ -72,7 +88,7 @@ export const useDestination = <I extends string, E extends HTMLElement = HTMLEle
             /**
              * Resolve how we should handle to the element
              */
-            const isSuccessful = (argsHandler || handler)?.(current);
+            const isSuccessful = resolveHandler(context, argsHandlerOrCategory)?.(current);
             if (isSuccessful) {
                 logger.onHandled?.(id);
             } else {
