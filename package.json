@@ -2,12 +2,15 @@
   "name": "react-scrollhooks",
   "version": "1.0.0",
   "description": "React hooks to help us scroll by through life",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "typings": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/filipomar/react-scrollhooks.git"
   },
   "scripts": {
+    "prepublishOnly": "rm -rf dist/ && npm run prettier && npm run lint && tsc --project publictsconfig.json",
     "lint": "eslint --config .eslintrc.js \"./**/*.{ts,tsx}\"",
     "prettier": "prettier --parser typescript --config .prettierrc.js --write \"src/**/*.{ts,tsx}\"",
     "start": "webpack-dev-server --config ./test/local/webpack.config.ts",

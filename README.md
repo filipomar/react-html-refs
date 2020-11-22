@@ -1,8 +1,8 @@
 # react-scrollhooks
 React hooks to help us scroll by through life<br />
 
-Tired of passing React Object Refs through your project to make scrolling future proof?<br />
-Tired of using constants and query selectors to scroll around your project?<br />
+Tired of React Object Refs chains through your project?<br />
+Tired of query selectors in a React app?<br />
 
 Well this project is for you!<br />
 
@@ -39,3 +39,10 @@ render(
     document.querySelector('#app'),
 );
 ```
+
+You can even type your ids, to ensure they are properly used and referenced every where.
+
+## Future Improvements
+- Add lint/prettier hooks
+TODO Review git hub repo config
+TODO Review npmignore files/and publish

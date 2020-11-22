@@ -33,7 +33,8 @@
         "types": [
             "node",
             "jest"
-        ]
+        ],
+        "outDir": "./dist"
     },
     "include": [
         "test",
