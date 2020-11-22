@@ -6,12 +6,12 @@ import { Optional } from '../../utils/Types';
 
 type DestinationsState<H extends string> = {
     /**
-     * Internal control
+     * Internal control of destinations
      */
     readonly destinations: Map<string, RefObject<unknown>>;
 
     /**
-     * Logger, if you want to know what is happening inside this provider
+     * Loggin of the provider and its hooks
      */
     readonly logger: Partial<Logger>;
 
@@ -35,18 +35,17 @@ export const Destinations = <H extends string>({ logger = {}, defaultHandler, ha
 
 export interface DestinationHook<E, H extends string = string> {
     /**
-     * Execute when you want to handle the referenced destination
-     * @param the handler to override the general handler to be used
+     * Execute the given category or handler on the reference HTMLElement
      */
-    handle: (handler?: Handler | H) => boolean;
+    handle: (customhandlerOrHandlerCategory?: Handler | H) => boolean;
 
     /**
-     * Register the destination point
+     * Register the destination
      */
     register: () => RefObject<E>;
 
     /**
-     * De-register the destination point
+     * De-register the destination
      */
     deregister: () => void;
 }
@@ -54,15 +53,21 @@ export interface DestinationHook<E, H extends string = string> {
 const resolveHandler = <H extends string>({ defaultHandler, handlers }: DestinationsState<H>, argsHandlerOrCategory?: Handler | H): Handler | null => {
     if (!argsHandlerOrCategory) {
         /**
-         * Nothing is provided, fallback
+         * Nothing is provided, use fallback
          */
         return defaultHandler || null;
     }
 
     if (typeof argsHandlerOrCategory === 'string') {
+        /**
+         * Intent to use category
+         */
         return handlers[argsHandlerOrCategory] || null;
     }
 
+    /**
+     * Intent to use custom handler
+     */
     return argsHandlerOrCategory;
 };
 
@@ -79,7 +84,7 @@ export const useDestination = <I extends string, H extends string = string, E ex
             const current = (destinations.get(id) as RefObject<E>)?.current;
             if (!current) {
                 /**
-                 * Ref is not present, handling is impossible, attempt to log
+                 * Ref is not present, handling is impossible, log
                  */
                 logger.onDestinationNotFound?.(id);
                 return false;
