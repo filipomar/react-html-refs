@@ -1,5 +1,6 @@
 import React from 'react';
 import { render } from 'react-dom';
+
 import { useScrollDestination, ScrollDestinations, ScrollDestination, Scroller, chain, DebugLogger, silence, wrapUnknown } from '../../src/infrastructure';
 
 type ScrollId = 'Anakin' | 'Kenobi' | 'Yoda';
@@ -29,13 +30,13 @@ render(
     >
         <style type="text/css">{css}</style>
         <div style={{ backgroundColor: 'red', padding: '30vh 0', textAlign: 'center' }}>
-            <ScrollDestination<ScrollId> scrollId="Anakin">I killed them all</ScrollDestination>
+            <ScrollDestination<ScrollId> scrollId="Anakin">Not just the men</ScrollDestination>
         </div>
         <div style={{ backgroundColor: 'blue', padding: '30vh 0', textAlign: 'center' }}>
-            <ScrollDestination<ScrollId> scrollId="Kenobi">I am space jesus</ScrollDestination>
+            <ScrollDestination<ScrollId> scrollId="Kenobi">Too centrist for politics</ScrollDestination>
         </div>
         <div style={{ backgroundColor: 'green', padding: '30vh 0', textAlign: 'center' }}>
-            <ScrollDestination<ScrollId> scrollId="Yoda">Got any of that ketamine bro?</ScrollDestination>
+            <ScrollDestination<ScrollId> scrollId="Yoda">Into the swamp I must go</ScrollDestination>
         </div>
         <div style={{ backgroundColor: 'yellow', padding: '20px', textAlign: 'center' }}>
             <Button scrollId="Anakin" scroller={wrapUnknown((el) => el.scrollIntoView({ behavior: 'smooth' }))}>
