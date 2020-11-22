@@ -1,11 +1,11 @@
 # react-html-refs
 A collection of react hooks/providers to help you scroll by through life and focus on the right stuff.<br />
 
-Tired of React Object Refs chains all-over your project?<br />
-Tired of query selectors in a React app?<br />
-Do you want to focus on a html input across the application or scroll the user to a specific element? Yeah, me neither<br />
+Tired of `React.RefObject` chains all-over your project?<br />
+Tired of `document.querySelector?.('.meaning-of-life')` in a React app?<br />
+Do you want to manually focus on a html input across the application or scroll the user to a specific element? Yeah, me neither<br />
 
-Well this project is for you!<br />
+Well then this project is for you!<br />
 
 With the code below you can manage all your scrolling/html needs, just:
 - Wrap your React app in a `Destinations` provider, with your base scrollers and loggers
