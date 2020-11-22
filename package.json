@@ -1,13 +1,13 @@
 {
-  "name": "react-scrollhooks",
+  "name": "react-html-refs",
   "version": "1.0.0",
-  "description": "React hooks to help us scroll by through life",
+  "description": "React html hooks to help us better manage html elements on React",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/filipomar/react-scrollhooks.git"
+    "url": "git+https://github.com/filipomar/react-html-refs.git"
   },
   "scripts": {
     "prepublishOnly": "rm -rf dist/ && npm run prettier && npm run lint && tsc --project publictsconfig.json",
@@ -19,14 +19,18 @@
   },
   "keywords": [
     "react",
-    "scroll"
+    "html",
+    "refs"
   ],
-  "author": "Filipe Pomar",
+  "author": {
+    "name": "Filipe Pomar",
+    "email": "filipomar@hotmail.com"
+  },
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/filipomar/react-scrollhooks/issues"
+    "url": "https://github.com/filipomar/react-html-refs/issues"
   },
-  "homepage": "https://github.com/filipomar/react-scrollhooks#readme",
+  "homepage": "https://github.com/filipomar/react-html-refs#readme",
   "devDependencies": {
     "@babel/preset-env": "^7.12.1",
     "@testing-library/jest-dom": "^5.11.6",

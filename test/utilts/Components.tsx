@@ -1,10 +1,11 @@
 import React from 'react';
-import { useScrollDestination, ScrollDestionationsProps } from '../../src/infrastructure';
 
-type TestButtonProps<I> = { scrollId: I } & Omit<React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>, 'onClick'> &
-    Pick<ScrollDestionationsProps, 'scroller'>;
+import { useDestination, DestionationsProps } from '../../src/infrastructure';
 
-export const TestButton = <I extends string>({ scrollId, scroller: scrollers, ...props }: TestButtonProps<I>): JSX.Element => {
-    const { scroll } = useScrollDestination<I>(scrollId);
-    return <button {...props} onClick={() => scroll(scrollers)} />;
+type TestButtonProps<I> = { destinationId: I } & Omit<React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>, 'onClick'> &
+    Pick<DestionationsProps, 'handler'>;
+
+export const TestButton = <I extends string>({ destinationId, handler, ...props }: TestButtonProps<I>): JSX.Element => {
+    const { handle } = useDestination<I>(destinationId);
+    return <button {...props} onClick={() => handle(handler)} />;
 };

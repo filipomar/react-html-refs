@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { fireEvent, render } from '@testing-library/react';
 
-import { ScrollDestination, ScrollDestinations } from '..';
+import { Destination, Destinations } from '..';
 
 import { MockedLogger } from '../../../test/utilts/MockedLogger';
 import { mockConsole } from '../../../test/utilts/Console';
@@ -16,15 +16,15 @@ const RenderHelper = (): JSX.Element => {
     return (
         <>
             <button onClick={() => setVisibility(!visible)} />
-            {visible && <ScrollDestination<Id> scrollId="A" />}
+            {visible && <Destination<Id> destinationId="A" />}
         </>
     );
 };
 
-describe('ScrollDestination', () => {
-    it('ScrollDestination will fail to render outside of hook', () => {
+describe('Destination', () => {
+    it('Destination will fail to render outside of hook', () => {
         const { error } = mockConsole();
-        expect(() => render(<ScrollDestination<Id> scrollId="A" />)).toThrowError();
+        expect(() => render(<Destination<Id> destinationId="A" />)).toThrowError();
         expect(error).toBeCalledTimes(2);
     });
 
@@ -35,9 +35,9 @@ describe('ScrollDestination', () => {
         const logger = new MockedLogger();
 
         const rendered = render(
-            <ScrollDestinations logger={logger}>
+            <Destinations logger={logger}>
                 <RenderHelper />
-            </ScrollDestinations>,
+            </Destinations>,
         );
         /**
          * Make sure destination rendered
@@ -49,25 +49,25 @@ describe('ScrollDestination', () => {
         fireEvent.click(button);
 
         expect(logger.onDestinationNotFound).toBeCalledTimes(0);
-        expect(logger.onScroll).toBeCalledTimes(0);
+        expect(logger.onHandled).toBeCalledTimes(0);
         expect(logger.onRegister).toBeCalledWith('A');
         expect(logger.onDeregister).toBeCalledWith('A');
-        expect(logger.onScrollerNotSuccessful).toBeCalledTimes(0);
+        expect(logger.onHandlerNotSuccessful).toBeCalledTimes(0);
 
         fireEvent.click(button);
 
         expect(logger.onDestinationNotFound).toBeCalledTimes(0);
-        expect(logger.onScroll).toBeCalledTimes(0);
+        expect(logger.onHandled).toBeCalledTimes(0);
         expect(logger.onRegister).toBeCalledTimes(2);
         expect(logger.onDeregister).toBeCalledWith('A');
-        expect(logger.onScrollerNotSuccessful).toBeCalledTimes(0);
+        expect(logger.onHandlerNotSuccessful).toBeCalledTimes(0);
 
         fireEvent.click(button);
 
         expect(logger.onDestinationNotFound).toBeCalledTimes(0);
-        expect(logger.onScroll).toBeCalledTimes(0);
+        expect(logger.onHandled).toBeCalledTimes(0);
         expect(logger.onRegister).toBeCalledTimes(2);
         expect(logger.onDeregister).toBeCalledTimes(2);
-        expect(logger.onScrollerNotSuccessful).toBeCalledTimes(0);
+        expect(logger.onHandlerNotSuccessful).toBeCalledTimes(0);
     });
 });

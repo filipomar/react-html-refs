@@ -5,9 +5,9 @@ export interface Logger {
     onDestinationNotFound(id: string): void;
 
     /**
-     * Called when scrolling is succesful
+     * Called when the element was handled successfully
      */
-    onScroll(id: string): void;
+    onHandled(id: string): void;
 
     /**
      * Called whenever a destination is registered/deregistered
@@ -16,7 +16,7 @@ export interface Logger {
     onDeregister(id: string): void;
 
     /**
-     * When no scrollers that run are succesful
+     * When no handler is found or when it runs, its not successful
      */
-    onScrollerNotSuccessful(): void;
+    onHandlerNotSuccessful(): void;
 }

@@ -1,43 +1,43 @@
 import React, { createContext, useContext, createRef, FC, RefObject, useMemo } from 'react';
 
 import { Logger } from '../../domain/Logger';
-import { Scroller } from '../../domain/Scroller';
+import { Handler } from '../../domain/Handler';
 import { Optional } from '../../utils/Types';
 
-type ScrollDestinationsState = {
+type DestinationsState = {
     /**
      * Internal control
      */
     readonly destinations: Map<string, RefObject<unknown>>;
 
     /**
-     * Logger, if you want to know what is happening inside the scroller
+     * Logger, if you want to know what is happening inside this provider
      */
     readonly logger: Partial<Logger>;
 
     /**
-     * The scrolling strategy
+     * The handler strategy
      */
-    readonly scroller?: Scroller;
+    readonly handler?: Handler;
 };
 
-const ScrollDestinationsContext = createContext<ScrollDestinationsState | null>(null);
+const DestinationsContext = createContext<DestinationsState | null>(null);
 
-export type ScrollDestionationsProps = Optional<Pick<ScrollDestinationsState, 'logger' | 'scroller'>>;
-export const ScrollDestinations: FC<ScrollDestionationsProps> = ({ logger = {}, scroller, children }): JSX.Element => {
+export type DestionationsProps = Optional<Pick<DestinationsState, 'logger' | 'handler'>>;
+export const Destinations: FC<DestionationsProps> = ({ logger = {}, handler, children }): JSX.Element => {
     /**
      * This hook can be treated as a map, as updates on its refs should not cause a re-render
      */
     const destinations = useMemo(() => new Map(), []);
-    return <ScrollDestinationsContext.Provider value={{ destinations, scroller, logger }}>{children}</ScrollDestinationsContext.Provider>;
+    return <DestinationsContext.Provider value={{ destinations, handler, logger }}>{children}</DestinationsContext.Provider>;
 };
 
 interface DestinationHook<E> {
     /**
-     * Execute when you want to scroll to the referenced destination
-     * @param the scroller to override the general scroller to be used
+     * Execute when you want to handle the referenced destination
+     * @param the handler to override the general handler to be used
      */
-    scroll: (scroller?: Scroller) => boolean;
+    handle: (handler?: Handler) => boolean;
 
     /**
      * Register the destination point
@@ -50,40 +50,36 @@ interface DestinationHook<E> {
     deregister: () => void;
 }
 
-export const useScrollDestination = <I extends string, E extends HTMLElement = HTMLElement>(id: I): DestinationHook<E> => {
-    const context = useContext(ScrollDestinationsContext);
+export const useDestination = <I extends string, E extends HTMLElement = HTMLElement>(id: I): DestinationHook<E> => {
+    const context = useContext(DestinationsContext);
     if (!context) {
-        throw new Error('useScrollDestination must be used within a ScrollDestinations Context');
+        throw new Error('useDestination must be used within a Destinations Context');
     }
 
-    const { logger, destinations, scroller } = context;
+    const { logger, destinations, handler } = context;
 
     return {
-        scroll: (argsScroller) => {
+        handle: (argsHandler) => {
             const current = (destinations.get(id) as RefObject<E>)?.current;
             if (!current) {
                 /**
-                 * Ref is not present, scroll is impossible, attempt to log
+                 * Ref is not present, handling is impossible, attempt to log
                  */
                 logger.onDestinationNotFound?.(id);
                 return false;
             }
 
             /**
-             * Resolve how we should scroll to the element
+             * Resolve how we should handle to the element
              */
-            const successful = (argsScroller || scroller)?.(current);
-
-            /**
-             * Stop on first scroller that is succesful
-             */
-            if (successful) {
-                logger.onScroll?.(id);
+            const isSuccessful = (argsHandler || handler)?.(current);
+            if (isSuccessful) {
+                logger.onHandled?.(id);
             } else {
-                logger.onScrollerNotSuccessful?.();
+                logger.onHandlerNotSuccessful?.();
             }
 
-            return Boolean(successful);
+            return Boolean(isSuccessful);
         },
         register: () => {
             if (!destinations.has(id)) {

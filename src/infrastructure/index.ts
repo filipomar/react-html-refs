@@ -1,5 +1,5 @@
 export { Logger } from '../domain/Logger';
-export { Scroller, silence, chain, wrapUnknown } from '../domain/Scroller';
-export { ScrollDestinations, ScrollDestionationsProps, useScrollDestination } from './ScrollDestinations';
-export { ScrollDestination } from './ScrollDestination';
+export { Handler, silence, chain, wrapUnknown } from '../domain/Handler';
+export { Destinations, DestionationsProps, useDestination } from './Destinations';
+export { Destination as Destination } from './Destination';
 export { DebugLogger } from './DebugLogger';

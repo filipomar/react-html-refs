@@ -1,17 +1,17 @@
 import React from 'react';
 import { render } from 'react-dom';
 
-import { useScrollDestination, ScrollDestinations, ScrollDestination, Scroller, chain, DebugLogger, silence, wrapUnknown } from '../../src/infrastructure';
+import { useDestination, Destinations, Destination, Handler, chain, DebugLogger, silence, wrapUnknown } from '../../src/infrastructure';
 
-type ScrollId = 'Anakin' | 'Kenobi' | 'Yoda';
+type DestinationId = 'Anakin' | 'Kenobi' | 'Yoda';
 
 const Button = ({
-    scrollId,
-    scroller,
+    destinationId,
+    handler,
     ...others
-}: { scrollId: ScrollId; scroller?: Scroller } & React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>): JSX.Element => {
-    const { scroll } = useScrollDestination<ScrollId>(scrollId);
-    return <button {...others} onClick={() => scroll(scroller)} />;
+}: { destinationId: DestinationId; handler?: Handler } & React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>): JSX.Element => {
+    const { handle } = useDestination<DestinationId>(destinationId);
+    return <button {...others} onClick={() => handle(handler)} />;
 };
 
 const css = `
@@ -20,8 +20,8 @@ const css = `
 `;
 
 render(
-    <ScrollDestinations
-        scroller={chain(
+    <Destinations
+        handler={chain(
             silence(wrapUnknown((el) => el.scrollIntoView({ behavior: 'smooth' }))),
             silence(wrapUnknown((el) => el.scrollTo({ behavior: 'smooth' }))),
             wrapUnknown((el) => window.scrollTo(0, el.offsetTop)),
@@ -30,23 +30,23 @@ render(
     >
         <style type="text/css">{css}</style>
         <div style={{ backgroundColor: 'red', padding: '30vh 0', textAlign: 'center' }}>
-            <ScrollDestination<ScrollId> scrollId="Anakin">Not just the men</ScrollDestination>
+            <Destination<DestinationId> destinationId="Anakin">Not just the men</Destination>
         </div>
         <div style={{ backgroundColor: 'blue', padding: '30vh 0', textAlign: 'center' }}>
-            <ScrollDestination<ScrollId> scrollId="Kenobi">Too centrist for politics</ScrollDestination>
+            <Destination<DestinationId> destinationId="Kenobi">Too centrist for politics</Destination>
         </div>
         <div style={{ backgroundColor: 'green', padding: '30vh 0', textAlign: 'center' }}>
-            <ScrollDestination<ScrollId> scrollId="Yoda">Into the swamp I must go</ScrollDestination>
+            <Destination<DestinationId> destinationId="Yoda">Into the swamp I must go</Destination>
         </div>
         <div style={{ backgroundColor: 'yellow', padding: '20px', textAlign: 'center' }}>
-            <Button scrollId="Anakin" scroller={wrapUnknown((el) => el.scrollIntoView({ behavior: 'smooth' }))}>
+            <Button destinationId="Anakin" handler={wrapUnknown((el) => el.scrollIntoView({ behavior: 'smooth' }))}>
                 Kill younglings
             </Button>
-            <Button scrollId="Yoda">Get Addicted to ketamine</Button>
-            <Button scrollId="Anakin">Do the most war crimes</Button>
-            <Button scrollId="Anakin">Be a space fascist</Button>
-            <Button scrollId="Kenobi">Have the highground</Button>
+            <Button destinationId="Yoda">Get Addicted to ketamine</Button>
+            <Button destinationId="Anakin">Do the most war crimes</Button>
+            <Button destinationId="Anakin">Be a space fascist</Button>
+            <Button destinationId="Kenobi">Have the highground</Button>
         </div>
-    </ScrollDestinations>,
+    </Destinations>,
     document.querySelector('#app'),
 );

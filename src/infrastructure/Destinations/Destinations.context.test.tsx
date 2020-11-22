@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 
-import { ScrollDestinations, ScrollDestination, chain, silence, wrapUnknown } from '..';
+import { Destinations, Destination, chain, silence, wrapUnknown } from '..';
 
 import { MockedLogger } from '../../../test/utilts/MockedLogger';
 import { TestButton } from '../../../test/utilts/Components';
@@ -11,11 +11,11 @@ type Id = 'A' | 'B' | 'C';
 
 afterEach(() => jest.clearAllMocks());
 
-describe('ScrollDestinations', () => {
-    it('ScrollDestination will fail to render outside of hook', () => {
+describe('Destinations', () => {
+    it('Destination will fail to render outside of hook', () => {
         const { error } = mockConsole();
 
-        expect(() => render(<ScrollDestination<Id> scrollId="A" style={{ background: 'red' }} />)).toThrowError();
+        expect(() => render(<Destination<Id> destinationId="A" style={{ background: 'red' }} />)).toThrowError();
         expect(error).toBeCalledTimes(2);
     });
 
@@ -27,10 +27,10 @@ describe('ScrollDestinations', () => {
         const scrollToMock = jest.fn();
 
         const rendered = render(
-            <ScrollDestinations scroller={chain(silence(wrapUnknown(scrollToMock)))} logger={logger}>
-                <ScrollDestination<Id> scrollId="A" style={{ background: 'red' }} />
-                <TestButton<Id> scrollId="A" />
-            </ScrollDestinations>,
+            <Destinations handler={chain(silence(wrapUnknown(scrollToMock)))} logger={logger}>
+                <Destination<Id> destinationId="A" style={{ background: 'red' }} />
+                <TestButton<Id> destinationId="A" />
+            </Destinations>,
         );
 
         /**
@@ -47,10 +47,10 @@ describe('ScrollDestinations', () => {
         fireEvent.click(button);
 
         expect(logger.onDestinationNotFound).toBeCalledTimes(0);
-        expect(logger.onScroll).toBeCalledWith('A');
+        expect(logger.onHandled).toBeCalledWith('A');
         expect(logger.onRegister).toBeCalledWith('A');
         expect(logger.onDeregister).toBeCalledTimes(0);
-        expect(logger.onScrollerNotSuccessful).toBeCalledTimes(0);
+        expect(logger.onHandlerNotSuccessful).toBeCalledTimes(0);
         expect(scrollToMock).toBeCalledTimes(1);
     });
 
@@ -61,10 +61,10 @@ describe('ScrollDestinations', () => {
         const scrollToMock = jest.fn();
 
         const rendered = render(
-            <ScrollDestinations scroller={chain(silence(wrapUnknown(scrollToMock)))}>
-                <ScrollDestination<Id> scrollId="A" style={{ background: 'red' }} />
-                <TestButton<Id> scrollId="A" />
-            </ScrollDestinations>,
+            <Destinations handler={chain(silence(wrapUnknown(scrollToMock)))}>
+                <Destination<Id> destinationId="A" style={{ background: 'red' }} />
+                <TestButton<Id> destinationId="A" />
+            </Destinations>,
         );
 
         /**
@@ -90,9 +90,9 @@ describe('ScrollDestinations', () => {
         const scrollToMock = jest.fn();
 
         const rendered = render(
-            <ScrollDestinations scroller={chain(silence(wrapUnknown(scrollToMock)))}>
-                <TestButton<Id> scrollId="A" />
-            </ScrollDestinations>,
+            <Destinations handler={chain(silence(wrapUnknown(scrollToMock)))}>
+                <TestButton<Id> destinationId="A" />
+            </Destinations>,
         );
 
         const button = rendered.container.querySelector('button');
@@ -114,10 +114,10 @@ describe('ScrollDestinations', () => {
         const customScroller = jest.fn().mockReturnValue(false);
 
         const rendered = render(
-            <ScrollDestinations logger={logger}>
-                <ScrollDestination<Id> scrollId="A" style={{ background: 'red' }} />
-                <TestButton<Id> scrollId="A" scroller={customScroller} />
-            </ScrollDestinations>,
+            <Destinations logger={logger}>
+                <Destination<Id> destinationId="A" style={{ background: 'red' }} />
+                <TestButton<Id> destinationId="A" handler={customScroller} />
+            </Destinations>,
         );
 
         /**
@@ -134,10 +134,10 @@ describe('ScrollDestinations', () => {
         fireEvent.click(button);
 
         expect(logger.onDestinationNotFound).toBeCalledTimes(0);
-        expect(logger.onScroll).toBeCalledTimes(0);
+        expect(logger.onHandled).toBeCalledTimes(0);
         expect(logger.onRegister).toBeCalledTimes(1);
         expect(logger.onDeregister).toBeCalledTimes(0);
-        expect(logger.onScrollerNotSuccessful).toBeCalledTimes(1);
+        expect(logger.onHandlerNotSuccessful).toBeCalledTimes(1);
         expect(customScroller).toBeCalledWith(rendered.container.querySelector('div[style]'));
     });
 
@@ -148,9 +148,9 @@ describe('ScrollDestinations', () => {
         const logger = new MockedLogger();
 
         const rendered = render(
-            <ScrollDestinations logger={logger}>
-                <TestButton<Id> scrollId="A" />
-            </ScrollDestinations>,
+            <Destinations logger={logger}>
+                <TestButton<Id> destinationId="A" />
+            </Destinations>,
         );
 
         const button = rendered.container.querySelector('button');
@@ -161,10 +161,10 @@ describe('ScrollDestinations', () => {
         fireEvent.click(button);
 
         expect(logger.onDestinationNotFound).toBeCalledTimes(1);
-        expect(logger.onScroll).toBeCalledTimes(0);
+        expect(logger.onHandled).toBeCalledTimes(0);
         expect(logger.onRegister).toBeCalledTimes(0);
         expect(logger.onDeregister).toBeCalledTimes(0);
-        expect(logger.onScrollerNotSuccessful).toBeCalledTimes(0);
+        expect(logger.onHandlerNotSuccessful).toBeCalledTimes(0);
     });
 
     it('Logs when no scrollers are found', () => {
@@ -174,10 +174,10 @@ describe('ScrollDestinations', () => {
         const logger = new MockedLogger();
 
         const rendered = render(
-            <ScrollDestinations logger={logger}>
-                <ScrollDestination<Id> scrollId="A" style={{ background: 'red' }} />
-                <TestButton<Id> scrollId="A" />
-            </ScrollDestinations>,
+            <Destinations logger={logger}>
+                <Destination<Id> destinationId="A" style={{ background: 'red' }} />
+                <TestButton<Id> destinationId="A" />
+            </Destinations>,
         );
 
         /**
@@ -194,10 +194,10 @@ describe('ScrollDestinations', () => {
         fireEvent.click(button);
 
         expect(logger.onDestinationNotFound).toBeCalledTimes(0);
-        expect(logger.onScroll).toBeCalledTimes(0);
+        expect(logger.onHandled).toBeCalledTimes(0);
         expect(logger.onRegister).toBeCalledTimes(1);
         expect(logger.onDeregister).toBeCalledTimes(0);
-        expect(logger.onScrollerNotSuccessful).toBeCalledTimes(1);
+        expect(logger.onHandlerNotSuccessful).toBeCalledTimes(1);
     });
 
     it('Scrolls to last item if registration is duplicate', () => {
@@ -208,11 +208,11 @@ describe('ScrollDestinations', () => {
         const scrollerMock = jest.fn().mockReturnValue(true);
 
         const rendered = render(
-            <ScrollDestinations scroller={scrollerMock} logger={logger}>
-                <ScrollDestination<Id> scrollId="A" id="RED" style={{ background: 'red' }} />
-                <ScrollDestination<Id> scrollId="A" id="BLUE" style={{ background: 'blue' }} />
-                <TestButton<Id> scrollId="A" />
-            </ScrollDestinations>,
+            <Destinations handler={scrollerMock} logger={logger}>
+                <Destination<Id> destinationId="A" id="RED" style={{ background: 'red' }} />
+                <Destination<Id> destinationId="A" id="BLUE" style={{ background: 'blue' }} />
+                <TestButton<Id> destinationId="A" />
+            </Destinations>,
         );
 
         /**
@@ -229,10 +229,10 @@ describe('ScrollDestinations', () => {
         fireEvent.click(button);
 
         expect(logger.onDestinationNotFound).toBeCalledTimes(0);
-        expect(logger.onScroll).toBeCalledWith('A');
+        expect(logger.onHandled).toBeCalledWith('A');
         expect(logger.onRegister).toBeCalledWith('A');
         expect(logger.onDeregister).toBeCalledTimes(0);
-        expect(logger.onScrollerNotSuccessful).toBeCalledTimes(0);
+        expect(logger.onHandlerNotSuccessful).toBeCalledTimes(0);
 
         expect(scrollerMock).toBeCalledWith(rendered.container.querySelector('#BLUE'));
     });
@@ -247,10 +247,10 @@ describe('ScrollDestinations', () => {
         });
 
         const rendered = render(
-            <ScrollDestinations scroller={chain(silence(wrapUnknown(scrollToMock)))} logger={logger}>
-                <ScrollDestination<Id> scrollId="A" style={{ background: 'red' }} />
-                <TestButton<Id> scrollId="A" />
-            </ScrollDestinations>,
+            <Destinations handler={chain(silence(wrapUnknown(scrollToMock)))} logger={logger}>
+                <Destination<Id> destinationId="A" style={{ background: 'red' }} />
+                <TestButton<Id> destinationId="A" />
+            </Destinations>,
         );
 
         /**
@@ -267,10 +267,10 @@ describe('ScrollDestinations', () => {
         fireEvent.click(button);
 
         expect(logger.onDestinationNotFound).toBeCalledTimes(0);
-        expect(logger.onScroll).toBeCalledTimes(0);
+        expect(logger.onHandled).toBeCalledTimes(0);
         expect(logger.onRegister).toBeCalledWith('A');
         expect(logger.onDeregister).toBeCalledTimes(0);
-        expect(logger.onScrollerNotSuccessful).toBeCalledTimes(1);
+        expect(logger.onHandlerNotSuccessful).toBeCalledTimes(1);
         expect(scrollToMock).toBeCalledTimes(1);
     });
 });

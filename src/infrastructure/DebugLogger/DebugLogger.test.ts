@@ -15,10 +15,10 @@ describe('DebugLogger', () => {
         expect(console.debug).toBeCalledTimes(0);
     });
 
-    it('handles onScroll as debug', () => {
+    it('handles onHandled as debug', () => {
         const console = mockConsole();
         const logger = new DebugLogger();
-        logger.onScroll('id');
+        logger.onHandled('id');
 
         expect(console.error).toBeCalledTimes(0);
         expect(console.warn).toBeCalledTimes(0);
@@ -45,10 +45,10 @@ describe('DebugLogger', () => {
         expect(console.debug).toBeCalledTimes(1);
     });
 
-    it('handles onResolvedScrollersNotSuccessful as a wanring', () => {
+    it('handles onHandlerNotSuccessful as a wanring', () => {
         const console = mockConsole();
         const logger = new DebugLogger();
-        logger.onScrollerNotSuccessful();
+        logger.onHandlerNotSuccessful();
 
         expect(console.error).toBeCalledTimes(0);
         expect(console.warn).toBeCalledTimes(1);
