@@ -1,11 +1,11 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 
-import { ScrollDestinations, ScrollDestination } from '.';
+import { ScrollDestinations, ScrollDestination } from '..';
 
-import { MockedLogger } from '../../../test/utilts/MockedLogger';
-import { TestButton } from '../../../test/utilts/Components';
-import { mockConsole } from '../../../test/utilts/Console';
+import { MockedLogger } from '../../test/utilts/MockedLogger';
+import { TestButton } from '../../test/utilts/Components';
+import { mockConsole } from '../../test/utilts/Console';
 
 type Id = 'A' | 'B' | 'C';
 

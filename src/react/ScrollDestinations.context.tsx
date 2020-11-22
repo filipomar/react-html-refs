@@ -1,9 +1,9 @@
 import React, { createContext, useContext, createRef, FC, RefObject, useMemo } from 'react';
 
-import { Optional } from '../../utils/Types';
+import { Optional } from '../utils/Types';
 
-import { Logger } from '../../domain/Logger';
-import { Scroller } from '../../domain/Scroller';
+import { Logger } from '../domain/Logger';
+import { Scroller } from '../domain/Scroller';
 
 import scrollers, { buildScroller, ScrollerBuilderKey } from './ScrollerBuilders';
 
