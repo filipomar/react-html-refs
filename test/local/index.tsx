@@ -15,22 +15,22 @@ const Button = ({
 
 const css = `
     html, body { margin: 0; }
-    button { display: block; margin: 5px; }
+    button { margin: 5px; }
 `;
 
 render(
     <ScrollDestinations scrollers={['scrollIntoView']}>
         <style type="text/css">{css}</style>
-        <div style={{ height: '150px', backgroundColor: 'red' }}>
+        <div style={{ backgroundColor: 'red', padding: '30vh 0', textAlign: 'center' }}>
             <ScrollDestination<ScrollId> scrollId="Anakin">I killed them all</ScrollDestination>
         </div>
-        <div style={{ height: '150px', backgroundColor: 'blue' }}>
+        <div style={{ backgroundColor: 'blue', padding: '30vh 0', textAlign: 'center' }}>
             <ScrollDestination<ScrollId> scrollId="Kenobi">I am space jesus</ScrollDestination>
         </div>
-        <div style={{ height: '150px', backgroundColor: 'green' }}>
+        <div style={{ backgroundColor: 'green', padding: '30vh 0', textAlign: 'center' }}>
             <ScrollDestination<ScrollId> scrollId="Yoda">Got any of that ketamine bro?</ScrollDestination>
         </div>
-        <div style={{ height: '300px', backgroundColor: 'yellow', padding: '20px' }}>
+        <div style={{ backgroundColor: 'yellow', padding: '20px', textAlign: 'center' }}>
             <Button scrollId="Anakin">Kill younglings</Button>
             <Button scrollId="Yoda" scrollMode="scrollIntoCenteredView">
                 Get Addicted to ketamine
