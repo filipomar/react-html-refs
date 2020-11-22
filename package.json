@@ -48,7 +48,6 @@
     "html-webpack-plugin": "^4.5.0",
     "jest": "^25.5.4",
     "path": "^0.12.7",
-    "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "ts-jest": "^25.5.1",
     "ts-loader": "^8.0.7",
@@ -57,5 +56,8 @@
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0"
+  },
+  "dependencies": {
+    "react": "^16.14.0"
   }
 }
