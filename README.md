@@ -46,9 +46,3 @@ render(
 ```
 
 You can even type your ids, to ensure they are properly used and referenced every where.
-
-## Future Improvements
-- TODO Make this generic (to work with focus and other html actions)
-- Add lint/prettier hooks
-- TODO Review git hub repo config
-- TODO Review npmignore files/and publish
