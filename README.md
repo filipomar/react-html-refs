@@ -7,8 +7,8 @@ Do you want to manually focus on a html input across the application or scroll t
 
 Well then this project is for you!<br />
 
-With the code below you can manage all your scrolling/html needs, just:
-- Wrap your React app in a `Destinations` provider, with your base scrollers and loggers
+With the code below you can manage all your html element related needs in your React app, just:
+- Wrap your React app in a `Destinations` provider, with your collection of useful handlers
 - Use the `useDestination` hook or `Destination` component to register html element destinations
 - Use `useDestination` to apply code to your registered destinations
 
@@ -53,5 +53,4 @@ render(
     document.querySelector('#app'),
 );
 ```
-
-You can even type your ids, to ensure they are properly used and referenced every where.
+If you are using typescript, I strongly recommend strongly typing your ids and handler categories so its easier to manage them.
