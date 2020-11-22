@@ -1,9 +1,9 @@
 import React, { createContext, useContext, createRef, FC, RefObject, useMemo } from 'react';
 
-import { Optional } from '../utils/Types';
+import { Optional } from '../../utils/Types';
 
-import { Logger } from '../domain/Logger';
-import { Scroller } from '../domain/Scroller';
+import { Logger } from '../../domain/Logger';
+import { Scroller } from '../../domain/Scroller';
 
 import scrollers, { buildScroller, ScrollerBuilderKey } from './ScrollerBuilders';
 
@@ -26,8 +26,8 @@ type ScrollDestinationsState = {
 
 const ScrollDestinationsContext = createContext<ScrollDestinationsState | null>(null);
 
-export type ScrollDestionationProps = Optional<Pick<ScrollDestinationsState, 'logger' | 'scrollers'>, 'scrollers'>;
-export const ScrollDestinations: FC<ScrollDestionationProps> = ({ logger, scrollers = [], children }): JSX.Element => {
+export type ScrollDestionationsProps = Optional<Pick<ScrollDestinationsState, 'logger' | 'scrollers'>, 'scrollers'>;
+export const ScrollDestinations: FC<ScrollDestionationsProps> = ({ logger, scrollers = [], children }): JSX.Element => {
     /**
      * This hook can be treated as a map, as updates on its refs should not cause a re-render
      */
@@ -45,6 +45,11 @@ type DestinationHook<E> = {
      * Register the destination point
      */
     register: () => RefObject<E>;
+
+    /**
+     * De-register the destination point
+     */
+    deregister: () => void;
 };
 
 const resolveScrollers = (el: HTMLElement, args: ScrollDestinationsState['scrollers']): Scroller[] => {
@@ -120,6 +125,9 @@ export const useScrollDestination = <I extends string, E extends HTMLElement = H
             const ref = (destinations.get(id) as RefObject<E>) || createRef<E>();
             destinations.set(id, ref);
             return ref;
+        },
+        deregister: () => {
+            destinations.delete(id);
         },
     };
 };

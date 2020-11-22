@@ -1,4 +1,4 @@
-import { PropsWithChildren, createElement } from 'react';
+import { PropsWithChildren, createElement, useEffect } from 'react';
 
 import { useScrollDestination } from './ScrollDestinations.context';
 
@@ -21,4 +21,13 @@ export const ScrollDestination = <T extends string, E extends keyof JSX.Intrinsi
     scrollId,
     elementType,
     ...other
-}: PropsWithChildren<ScrollDestinationProps<T, E>>): JSX.Element => createElement(elementType || 'div', { ...other, ref: useScrollDestination(scrollId).register() });
+}: PropsWithChildren<ScrollDestinationProps<T, E>>): JSX.Element => {
+    const { register, deregister } = useScrollDestination(scrollId);
+
+    /**
+     * Drop the ref once this is unmounted
+     */
+    useEffect(() => deregister, []);
+
+    return createElement(elementType || 'div', { ...other, ref: register() });
+};

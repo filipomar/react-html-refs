@@ -1,9 +1,8 @@
 import React from 'react';
-import { useScrollDestination } from '../../src';
-import { ScrollDestionationProps } from '../../src/react/ScrollDestinations.context';
+import { useScrollDestination, ScrollDestionationsProps } from '../../src/infrastructure';
 
 type TestButtonProps<I> = { scrollId: I } & Omit<React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>, 'onClick'> &
-    Pick<ScrollDestionationProps, 'scrollers'>;
+    Pick<ScrollDestionationsProps, 'scrollers'>;
 
 export const TestButton = <I extends string>({ scrollId, scrollers, ...props }: TestButtonProps<I>): JSX.Element => {
     const { scroll } = useScrollDestination<I>(scrollId);

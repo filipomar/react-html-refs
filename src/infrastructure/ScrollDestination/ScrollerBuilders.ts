@@ -1,4 +1,4 @@
-import { Scroller } from '../domain/Scroller';
+import { Scroller } from '../../domain/Scroller';
 
 class HtmlElementScroller<E extends keyof typeof HtmlElementScroller['executors'], P extends Parameters<HTMLElement[E]>[0]> implements Scroller {
     private static executors = {

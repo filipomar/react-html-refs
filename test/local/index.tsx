@@ -1,7 +1,6 @@
 import React from 'react';
 import { render } from 'react-dom';
-
-import { ScrollDestinations, ScrollDestination, useScrollDestination, ScrollerBuilderKey } from '../../src';
+import { ScrollerBuilderKey, useScrollDestination, ScrollDestinations, ScrollDestination } from '../../src/infrastructure';
 
 type ScrollId = 'Anakin' | 'Kenobi' | 'Yoda';
 

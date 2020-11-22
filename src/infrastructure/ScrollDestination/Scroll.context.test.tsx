@@ -3,9 +3,9 @@ import { fireEvent, render } from '@testing-library/react';
 
 import { ScrollDestinations, ScrollDestination } from '..';
 
-import { MockedLogger } from '../../test/utilts/MockedLogger';
-import { TestButton } from '../../test/utilts/Components';
-import { mockConsole } from '../../test/utilts/Console';
+import { MockedLogger } from '../../../test/utilts/MockedLogger';
+import { TestButton } from '../../../test/utilts/Components';
+import { mockConsole } from '../../../test/utilts/Console';
 
 type Id = 'A' | 'B' | 'C';
 
@@ -52,7 +52,7 @@ describe('ScrollDestinations', () => {
         expect(logger.onRegister).toBeCalledWith('A');
         expect(logger.onNoResolvedScrollers).toBeCalledTimes(0);
         expect(logger.onResolvedScrollersNotSuccessful).toBeCalledTimes(0);
-        expect(scrollToMock).toBeCalledWith();
+        expect(scrollToMock).toBeCalledTimes(1);
     });
 
     it('Scrolls to point when clicked even without logger', () => {
@@ -82,7 +82,7 @@ describe('ScrollDestinations', () => {
 
         fireEvent.click(button);
 
-        expect(scrollToMock).toBeCalledWith();
+        expect(scrollToMock).toBeCalledTimes(1);
     });
 
     it('Does not scrolls to point when clicked without logger but throws no error', () => {
@@ -236,7 +236,7 @@ describe('ScrollDestinations', () => {
         expect(logger.onRegister).toBeCalledWith('A');
         expect(logger.onNoResolvedScrollers).toBeCalledTimes(0);
         expect(logger.onResolvedScrollersNotSuccessful).toBeCalledTimes(0);
-        expect(scrollToMock).toBeCalledWith();
+        expect(scrollToMock).toBeCalledTimes(1);
     });
 
     it('Scrolls to last item if registration is dupilcate', () => {
