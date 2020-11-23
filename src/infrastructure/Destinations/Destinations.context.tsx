@@ -45,12 +45,21 @@ export interface DestinationHook<E, H extends string = string> {
     register: () => RefObject<E>;
 
     /**
+     * If you don't want to use the library as it was intended, go ahead
+     * @deprecated I'm still shaming you
+     */
+    getHTMLElement: () => HTMLElement | null;
+
+    /**
      * De-register the destination
      */
     deregister: () => void;
 }
 
-const resolveHandler = <H extends string>({ defaultHandler, handlers }: DestinationsState<H>, argsHandlerOrCategory?: Handler | H): Handler | null => {
+const resolveHandler = <H extends string>(
+    { defaultHandler, handlers }: Pick<DestinationsState<H>, 'defaultHandler' | 'handlers'>,
+    argsHandlerOrCategory?: Handler | H,
+): Handler | null => {
     if (!argsHandlerOrCategory) {
         /**
          * Nothing is provided, use fallback
@@ -71,55 +80,66 @@ const resolveHandler = <H extends string>({ defaultHandler, handlers }: Destinat
     return argsHandlerOrCategory;
 };
 
-export const useDestination = <I extends string, H extends string = string, E extends HTMLElement = HTMLElement>(id: I): DestinationHook<E, H> => {
+const useDestinationsState = <H extends string>(): DestinationsState<H> => {
     const context = useContext(DestinationsContext);
     if (!context) {
-        throw new Error('useDestination must be used within a Destinations Context');
+        throw new Error('Destination hooks must be used within a Destinations Context');
     }
 
-    const { logger, destinations } = context;
+    return context;
+};
 
-    return {
-        handle: (argsHandlerOrCategory) => {
-            const current = (destinations.get(id) as RefObject<E>)?.current;
-            if (!current) {
+export const useDestinations = <I extends string, H extends string = string, E extends HTMLElement = HTMLElement>(): ((id: I) => DestinationHook<E, H>) => {
+    const { logger, destinations, ...handlers } = useDestinationsState();
+
+    return (id) => {
+        const getHTMLElement = () => (destinations.get(id) as RefObject<E>)?.current || null;
+
+        return {
+            handle: (argsHandlerOrCategory) => {
+                const current = getHTMLElement();
+                if (!current) {
+                    /**
+                     * Ref is not present, handling is impossible, log
+                     */
+                    logger.onDestinationNotFound?.(id);
+                    return false;
+                }
+
                 /**
-                 * Ref is not present, handling is impossible, log
+                 * Resolve how we should handle to the element
                  */
-                logger.onDestinationNotFound?.(id);
-                return false;
-            }
+                const isSuccessful = resolveHandler(handlers, argsHandlerOrCategory)?.(current);
+                if (isSuccessful) {
+                    logger.onHandled?.(id);
+                } else {
+                    logger.onHandlerNotSuccessful?.();
+                }
 
-            /**
-             * Resolve how we should handle to the element
-             */
-            const isSuccessful = resolveHandler(context, argsHandlerOrCategory)?.(current);
-            if (isSuccessful) {
-                logger.onHandled?.(id);
-            } else {
-                logger.onHandlerNotSuccessful?.();
-            }
+                return Boolean(isSuccessful);
+            },
+            getHTMLElement,
+            register: () => {
+                if (!destinations.has(id)) {
+                    /**
+                     * Log that it is being created
+                     */
+                    logger.onRegister?.(id);
+                }
 
-            return Boolean(isSuccessful);
-        },
-        register: () => {
-            if (!destinations.has(id)) {
                 /**
-                 * Log that it is being created
+                 * Register ref and return it
                  */
-                logger.onRegister?.(id);
-            }
-
-            /**
-             * Register ref and return it
-             */
-            const ref = (destinations.get(id) as RefObject<E>) || createRef<E>();
-            destinations.set(id, ref);
-            return ref;
-        },
-        deregister: () => {
-            logger.onDeregister?.(id);
-            destinations.delete(id);
-        },
+                const ref = (destinations.get(id) as RefObject<E>) || createRef<E>();
+                destinations.set(id, ref);
+                return ref;
+            },
+            deregister: () => {
+                logger.onDeregister?.(id);
+                destinations.delete(id);
+            },
+        };
     };
 };
+
+export const useDestination = <I extends string, H extends string = string, E extends HTMLElement = HTMLElement>(id: I): DestinationHook<E, H> => useDestinations<I, H, E>()(id);
