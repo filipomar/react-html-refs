@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 
-import { Destinations, Destination, chain, silence, wrapUnknown } from '..';
+import { Destinations, Destination, chain, silence, wrapUnknown, useDestination } from '..';
 
 import { MockedLogger } from '../../../test/utilts/MockedLogger';
 import { TestButton } from '../../../test/utilts/Components';
@@ -15,7 +15,12 @@ describe('Destinations', () => {
     it('Destination will fail to render outside of hook', () => {
         const { error } = mockConsole();
 
-        expect(() => render(<Destination<Id> destinationId="A" style={{ background: 'red' }} />)).toThrowError();
+        const HookThatShouldNotWork = (): JSX.Element => {
+            useDestination<Id>('A');
+            return <></>;
+        };
+
+        expect(() => render(<HookThatShouldNotWork />)).toThrowError();
         expect(error).toBeCalledTimes(2);
     });
 

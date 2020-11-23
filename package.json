@@ -1,16 +1,17 @@
 {
   "name": "react-html-refs",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "React html hooks to help us better manage html elements on React",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "typings": "dist/index.d.ts",
+  "main": "dist/infrastructure/index.js",
+  "types": "dist/infrastructure/index.d.ts",
+  "typings": "dist/infrastructure/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/filipomar/react-html-refs.git"
   },
   "scripts": {
-    "prepublishOnly": "rm -rf dist/ && npm run prettier && npm run lint && tsc --project publictsconfig.json",
+    "prepublishOnly": "npm run prettier && npm run lint && npm run coverage && npm run build",
+    "build": "rm -rf dist/ && tsc --project publictsconfig.json",
     "lint": "eslint --config .eslintrc.js \"./**/*.{ts,tsx}\"",
     "prettier": "prettier --parser typescript --config .prettierrc.js --write \"src/**/*.{ts,tsx}\"",
     "start": "webpack-dev-server --config ./test/local/webpack.config.ts",
@@ -20,7 +21,10 @@
   "keywords": [
     "react",
     "html",
-    "refs"
+    "refs",
+    "scrolling",
+    "scroll",
+    "focus"
   ],
   "author": {
     "name": "Filipe Pomar",
